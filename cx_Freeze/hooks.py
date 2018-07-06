@@ -794,8 +794,8 @@ def load_clr(finder, module):
     """the pythonnet package (imported as 'clr') needs Python.Runtime.dll
     in runtime"""
     module_dir = os.path.dirname(module.file)
-    dllname = 'Python.Runtime.dll'
-    finder.IncludeFiles(os.path.join(module_dir, dllname), os.path.join("lib", dll_name))
+    dll_name = 'Python.Runtime.dll'
+    finder.IncludeFiles(os.path.join(module_dir, dll_name), os.path.join("lib", dll_name))
     
     
 def load_sqlite3(finder, module):
