@@ -1,4 +1,4 @@
-version = "6.0b1"
+version = "6.0b2"
 __version__ = version
 
 import sys

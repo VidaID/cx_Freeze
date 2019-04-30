@@ -102,6 +102,45 @@ static int SetExecutableName(
     return 0;
 }
 
+static void* hook_malloc(void *ctx, size_t size)
+{
+    return malloc(size);
+}
+
+static void* hook_realloc(void *ctx, void *ptr, size_t new_size)
+{
+    return realloc(ptr, new_size);
+}
+
+static void* hook_calloc(void *ctx, size_t nelem, size_t elsize)
+{
+    return calloc(nelem, elsize);
+}
+
+#if defined(_WIN32)
+    #define msize _msize
+#elif defined(__APPLE_)
+    #define msize malloc_size
+#else
+    #define msize malloc_usable_size
+#endif
+
+static void hook_free(void *ctx, void *ptr)
+{
+    memset(ptr, 0, msize(ptr));
+    free(ptr);
+}
+
+PyMemAllocatorEx g_alloc;
+
+static void InitAlloc() {
+    g_alloc.malloc = hook_malloc;
+    g_alloc.calloc = hook_calloc;
+    g_alloc.realloc = hook_realloc;
+    g_alloc.free = hook_free;
+    
+    PyMem_SetAllocator(PYMEM_DOMAIN_OBJ, &g_alloc);
+}
 
 #ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
@@ -112,6 +151,8 @@ static int InitializePython(int argc, wchar_t **argv)
 {
     wchar_t *wPath;
     size_t size;
+
+    InitAlloc();
 
     // determine executable name
     if (SetExecutableName(NULL) < 0)
@@ -131,6 +172,7 @@ static int InitializePython(int argc, wchar_t **argv)
     Py_IgnoreEnvironmentFlag = 1;
     Py_SetProgramName(g_ExecutableName);
     Py_SetPath(wPath);
+
     Py_Initialize();
     PySys_SetArgv(argc, argv);
 
@@ -148,6 +190,8 @@ static int InitializePython(int argc, char **argv)
     wchar_t **wargv, *wExecutableName, *wExecutableDirName, *wPath;
     size_t size;
     int i;
+
+    InitAlloc();
 
     // determine executable name
     if (SetExecutableName(argv[0]) < 0)
