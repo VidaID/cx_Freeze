@@ -119,7 +119,7 @@ static void* hook_calloc(void *ctx, size_t nelem, size_t elsize)
 
 #if defined(_WIN32)
     #define msize _msize
-#elif defined(__APPLE_)
+#elif defined(__APPLE__)
     #define msize malloc_size
 #else
     #define msize malloc_usable_size
