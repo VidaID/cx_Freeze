@@ -100,6 +100,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             if vars["LOCALMODLIBS"]:
                 extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
+            extraArgs.append("-fno-lto")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
                 library_dirs = libraryDirs,
